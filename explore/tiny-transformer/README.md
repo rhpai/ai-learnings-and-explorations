@@ -14,6 +14,14 @@ uv pip install torch numpy
 
 The script uses one CPU thread and generates its data locally. Try `--steps 0` for an untrained baseline or `--steps 100 --seed 7` for a shorter run with a different initialization and data split.
 
+## Try your own prompts
+
+```sh
+.venv/bin/python explore/tiny-transformer/train.py --interactive
+```
+
+After training, enter four digits from 0 to 7 at `Prompt>`, for example `3 1 4 2` or `3142`. The script adds the separator and generates the four output digits one at a time. Enter more prompts to reuse the trained model in the same session, or type `q` to quit. The model accepts fixed-length digit sequences.
+
 ## Read the model
 
 1. **Embeddings** map each token and each position to a learned vector. Positions let the model distinguish the first digit from the second even if they have the same value.

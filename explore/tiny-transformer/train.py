@@ -106,10 +106,30 @@ def show_attention(model, digits):
             print(f"layer {layer} head {head}   " + " ".join(f"{w:6.1%}" for w in row))
 
 
+def interactive_prompt(model):
+    print("\nEnter four digits from 0 to 7, such as 3 1 4 2. Type q to quit.")
+    while True:
+        try:
+            raw = input("Prompt> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return
+        if raw.lower() == "q":
+            return
+        tokens = "".join(raw.split())
+        if len(tokens) != COPY_LENGTH or any(token not in "01234567" for token in tokens):
+            print("Please enter exactly four digits from 0 to 7.")
+            continue
+        digits = torch.tensor([[int(token) for token in tokens]])
+        prediction = generate(model, prompt(digits))[0].tolist()
+        print("Predicted: " + " ".join(map(str, prediction)))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--steps", type=int, default=600)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--interactive", action="store_true", help="Try prompts after training")
     args = parser.parse_args()
     if args.steps < 0:
         parser.error("--steps must be nonnegative")
@@ -148,6 +168,8 @@ def main():
     for digits, prediction in zip(test[:3].tolist(), copied.tolist()):
         print(f"{digits} | predicted {prediction}")
     show_attention(model, test)
+    if args.interactive:
+        interactive_prompt(model)
 
 
 if __name__ == "__main__":
